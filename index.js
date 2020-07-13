@@ -1,7 +1,7 @@
 //requiring libraries
 const mysql = require("mysql");
 const inquirer = require("inquirer");
-const consoleTable = require("console.table");
+const cTable = require("console.table");
 
 const connection = mysql.createConnection({
     host: "localhost",
@@ -187,3 +187,33 @@ function addDepartment() {
         );
       });
   }
+
+  function viewDepartments() {
+    connection.query(
+      "SELECT * FROM department", function(err, res) {
+        if (err) throw err;
+        console.table(res);
+        start();
+      }
+    )
+  };
+
+  function viewEmployess() {
+    connection.query(
+      "SELECT * FROM employee", function(err, res) {
+        if (err) throw err;
+        console.table(res);
+        start();
+      }
+    )
+  };
+
+  function viewRoles() {
+    connection.query(
+      "SELECT * FROM role", function(err, res) {
+        if (err) throw err;
+        console.table(res);
+        start();
+      }
+    )
+  };
