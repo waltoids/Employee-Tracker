@@ -17,12 +17,12 @@ const connection = mysql.createConnection({
     database: "employee_trackerDB"
   });
 
-  connection.connect(function(err) {
+connection.connect(function(err) {
     if (err) throw err;
-    runSearch();
+    start();
   });
   
-  function runSearch() {
+function start() {
     inquirer
       .prompt({
         name: "action",
@@ -39,7 +39,7 @@ const connection = mysql.createConnection({
             "EXIT"
         ]
       })
-      .then(function(answer) {
+     .then(function(answer) {
         switch (answer.action) {
         case "Add Department":
           addDepartment();
@@ -67,8 +67,37 @@ const connection = mysql.createConnection({
             updateRoles();
             break;
         case "EXIT":
+            console.log("GoodBye!")
             connection.end();
             break
         }
+      });
+  }
+
+function addDepartment() {
+    // prompt for info about the department that is being added
+    inquirer
+      .prompt([
+        {
+          name: "name",
+          type: "input",
+          message: "Input department's name:"
+        }
+      ])
+      .then(function(answer) {
+        // when finished prompting, insert a new item into the db with that info
+        connection.query(
+          "INSERT INTO department SET ?",
+          {
+            name: answer.name,
+          },
+        
+          function(err) {
+            if (err) throw err;
+            console.log("Your department was created successfully!");
+            // re-prompt the user for what they want to do.
+            start();
+          }
+        );
       });
   }
