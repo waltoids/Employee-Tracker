@@ -101,3 +101,49 @@ function addDepartment() {
         );
       });
   }
+
+  function addEmployee() {
+    // prompt for info about the department that is being added
+    inquirer
+      .prompt([
+        {
+          name: "first_name",
+          type: "input",
+          message: "What is the first name of the employee?"
+        },
+        {
+          name: "last_name",
+          type: "input",
+          message: "What is the last name of the employee?"
+        },
+        {
+          name: "role_id",
+          type: "input",
+          message: "Role ID:"
+        },
+        {
+          name: "manager_id",
+          type: "input",
+          message: "Manager's ID:"
+        }
+      ])
+      .then(function(answer) {
+        // when finished prompting, insert a new item into the db with that info
+        connection.query(
+          "INSERT INTO employee SET ?",
+          {
+            first_name: answer.first_name,
+            last_name: answer.last_name,
+            role_id: answer.role_id,
+            manager_id: answer.manager_id
+          },
+        
+          function(err) {
+            if (err) throw err;
+            console.log("Employee's data was created successfully!");
+            // re-prompt the user for what they want to do.
+            start();
+          }
+        );
+      });
+  }
