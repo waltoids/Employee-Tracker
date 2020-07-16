@@ -249,10 +249,13 @@ function addDepartment() {
       .then(function(answer) {
         connection.query(`UPDATE employee
         SET role_id = (SELECT id FROM role WHERE title = ? ) 
-        WHERE id = (SELECT id FROM(SELECT id FROM employees WHERE CONCAT(first_name," ",last_name) = ?) AS tmptable)`,
+        WHERE id = (SELECT id FROM(SELECT id FROM employee WHERE CONCAT(first_name," ",last_name) = ?) AS tmptable)`,
          [answer.newRole, answer.employee], function (err, res) {
                 if (err) throw err;
       });
+      console.log("Role updated successfully!")
+      start();
     })
+   
   })
 };
