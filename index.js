@@ -14,7 +14,8 @@ const connection = mysql.createConnection({
   
     // Your password
     password: "2020",
-    database: "employee_trackerDB"
+    database: "employee_trackerDB",
+    multipleStatements: true
   });
 
 connection.connect(function(err) {
@@ -64,7 +65,7 @@ function start() {
           viewRoles();
           break;
         case "Update Employee Role":
-            updateRoles();
+            updateEmployeeRole();
             break;
         case "EXIT":
             console.log("GoodBye!")
@@ -217,3 +218,41 @@ function addDepartment() {
       }
     )
   };
+
+  function updateEmployeeRole() {
+    
+    const query = `SELECT CONCAT (first_name," ",last_name) AS full_name FROM employee; SELECT title FROM role`
+    connection.query(query, function(err, res) {
+      if (err) throw err;
+
+    inquirer
+      .prompt([
+        {
+          name: "employee",
+          type: "list",
+          message: "Choose an employee to update role:",
+          choices: function () {
+            let choiceArray = res[0].map(choice => choice.full_name);
+            return choiceArray;
+          }
+        },
+        {
+          name: "newRole",
+          type: "list",
+          message: "Choose a new role for the employee:",
+          choices: function () {
+            let choiceArray = res[1].map(choice => choice.title);
+            return choiceArray;
+          }
+        }
+      ])
+      .then(function(answer) {
+        connection.query(`UPDATE employee
+        SET role_id = (SELECT id FROM role WHERE title = ? ) 
+        WHERE id = (SELECT id FROM(SELECT id FROM employees WHERE CONCAT(first_name," ",last_name) = ?) AS tmptable)`,
+         [answer.newRole, answer.employee], function (err, res) {
+                if (err) throw err;
+      });
+    })
+  })
+};
