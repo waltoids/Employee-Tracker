@@ -22,7 +22,8 @@ connection.connect(function(err) {
     if (err) throw err;
     start();
   });
-  
+
+  // Inquirer function with list of actions user can take
 function start() {
     inquirer
       .prompt({
@@ -104,7 +105,11 @@ function addDepartment() {
   }
 
   function addEmployee() {
-    // prompt for info about the department that is being added
+    const roleQuery = 'SELECT * from role;';
+    connection.query (roleQuery, function (err, res) {
+      if (err) throw err;
+    
+    // prompt for info about the employee that is being added
     inquirer
       .prompt([
         {
@@ -119,8 +124,12 @@ function addDepartment() {
         },
         {
           name: "role_id",
-          type: "input",
-          message: "Role ID:"
+          type: "list",
+          message: "Employee's role:",
+          choices: function() {
+            let choiceArray = res.map(choice => choice.title);
+            return choiceArray;
+          }
         },
         {
           name: "manager_id",
@@ -131,26 +140,23 @@ function addDepartment() {
       .then(function(answer) {
         // when finished prompting, insert a new item into the db with that info
         connection.query(
-          "INSERT INTO employee SET ?",
-          {
-            first_name: answer.first_name,
-            last_name: answer.last_name,
-            role_id: answer.role_id,
-            manager_id: answer.manager_id
-          },
-        
+          `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES(?, ?,(SELECT id FROM role WHERE title = ? ), ?)`,
+          [
+            answer.first_name, answer.last_name, answer.role_id, answer.manager_id
+          ]),
           function(err) {
             if (err) throw err;
             console.log("Employee's data was created successfully!");
             // re-prompt the user for what they want to do.
-            start();
           }
-        );
+          start();
+        });
       });
-  }
+    }
+  
 
   function addRole() {
-    // prompt for info about the department that is being added
+    // prompt for info about the role that is being added
     inquirer
       .prompt([
         {
@@ -191,7 +197,7 @@ function addDepartment() {
 
   function viewDepartments() {
     connection.query(
-      "SELECT * FROM department", function(err, res) {
+      "SELECT id, name AS department FROM department", function(err, res) {
         if (err) throw err;
         console.table(res);
         start();
@@ -249,7 +255,7 @@ function addDepartment() {
       .then(function(answer) {
         connection.query(`UPDATE employee
         SET role_id = (SELECT id FROM role WHERE title = ? ) 
-        WHERE id = (SELECT id FROM(SELECT id FROM employee WHERE CONCAT(first_name," ",last_name) = ?) AS tmptable)`,
+        WHERE id = (SELECT id FROM(SELECT id FROM employee WHERE CONCAT(first_name," ",last_name) = ?))`,
          [answer.newRole, answer.employee], function (err, res) {
                 if (err) throw err;
       });
