@@ -206,8 +206,16 @@ function addDepartment() {
   };
 
   function viewEmployess() {
+    let query = `SELECT e.id, e.first_name, e.last_name, e.manager_id, r.title, r.salary, d.name AS "department",CONCAT(m.first_name," ",m.last_name) AS "Manager" 
+    FROM employee e 
+    LEFT JOIN role r 
+    ON r.id = e.role_id 
+    LEFT JOIN department d 
+    ON d.id = r.department_id
+    LEFT JOIN employee m ON m.id = e.manager_id;`
+
     connection.query(
-      "SELECT * FROM employee", function(err, res) {
+      query, function(err, res) {
         if (err) throw err;
         console.table(res);
         start();
@@ -255,13 +263,12 @@ function addDepartment() {
       .then(function(answer) {
         connection.query(`UPDATE employee
         SET role_id = (SELECT id FROM role WHERE title = ? ) 
-        WHERE id = (SELECT id FROM(SELECT id FROM employee WHERE CONCAT(first_name," ",last_name) = ?))`,
+        WHERE id = (SELECT id FROM(SELECT id FROM employee WHERE CONCAT(first_name," ",last_name) = ?) AS tmpTable)`,
          [answer.newRole, answer.employee], function (err, res) {
                 if (err) throw err;
       });
       console.log("Role updated successfully!")
       start();
     })
-   
   })
 };
