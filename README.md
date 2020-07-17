@@ -16,6 +16,7 @@ A command-line Employee Management application that allows users to: Add departm
 
 ## Installation:
 npm install
+use schema.sql in mysql to build database
 
 ## Usage:
 node index.js
