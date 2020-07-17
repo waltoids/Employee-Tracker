@@ -15,8 +15,7 @@
 A command-line Employee Management application that allows users to: Add departments, roles, and employees; View departments, roles, employees; As well as update employee roles.
 
 ## Installation:
-npm install
-use schema.sql in mysql to build database
+npm install. Open schema.sql in mysql and run to build database
 
 ## Usage:
 node index.js
